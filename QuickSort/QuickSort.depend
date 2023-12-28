@@ -1,0 +1,5 @@
+# depslib dependency file v1.0
+1703507095 source:h:\12) datastructure\labs\lab_2\quicksort\main.cpp
+	<iostream>
+	<algorithm>
+
