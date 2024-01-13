@@ -1,84 +1,278 @@
-// C++ function to search a given key in a given BST
-
 #include <iostream>
+#include <cassert>
 
 using namespace std;
 
-struct node {
-	int key;
-	struct node *left, *right;
+template <typename T>
+struct TreeNode {
+    T info;
+    TreeNode<T>* left;
+    TreeNode<T>* right;
+
+    TreeNode(T value) : info(value), left(nullptr), right(nullptr) {}
 };
 
-// A utility function to create a new BST node
-struct node* newNode(int item)
-{
-	struct node* temp
-		= new struct node;
-	temp->key = item;
-	temp->left = temp->right = NULL;
-	return temp;
+template <typename T>
+class BinarySearchTree {
+public:
+    bool isEmpty();
+    bool search(T);
+    void insert(T);
+    void remove(T);
+    void inorderTraversal();
+    void preorderTraversal();
+    void postorderTraversal();
+    int treeHeight();
+    int treeNodeCount();
+    int treeLeavesCount();
+    BinarySearchTree();
+private:
+    TreeNode<T>* root;
+    void inorder(TreeNode<T>*);
+    void preorder(TreeNode<T>*);
+    void postorder(TreeNode<T>*);
+    int height(TreeNode<T>*);
+    int max(int x, int y);
+    int nodeCount(TreeNode<T>*);
+    int leavesCount(TreeNode<T>*);
+    void deleteFromTree(TreeNode<T>*&);
+};
+
+template <typename T>
+BinarySearchTree<T>::BinarySearchTree() : root(nullptr) {}
+
+template <typename T>
+bool BinarySearchTree<T>::isEmpty() {
+    return (root == nullptr);
 }
 
-// A utility function to insert
-// a new node with given key in BST
-struct node* insert(struct node* node, int key)
-{
-	// If the tree is empty, return a new node
-	if (node == NULL)
-		return newNode(key);
-
-	// Otherwise, recur down the tree
-	if (key < node->key)
-		node->left = insert(node->left, key);
-	else if (key > node->key)
-		node->right = insert(node->right, key);
-
-	// Return the (unchanged) node pointer
-	return node;
+template <typename T>
+void BinarySearchTree<T>::inorderTraversal() {
+    inorder(root);
 }
 
-// Utility function to search a key in a BST
-struct node* search(struct node* root, int key)
-{
-	// Base Cases: root is null or key is present at root
-	if (root == NULL || root->key == key)
-		return root;
-
-	// Key is greater than root's key
-	if (root->key < key)
-		return search(root->right, key);
-
-	// Key is smaller than root's key
-	return search(root->left, key);
+template <typename T>
+void BinarySearchTree<T>::preorderTraversal() {
+    preorder(root);
 }
 
-// Driver Code
-int main()
-{
-	struct node* root = NULL;
-	root = insert(root, 50);
-	insert(root, 30);
-	insert(root, 20);
-	insert(root, 40);
-	insert(root, 70);
-	insert(root, 60);
-	insert(root, 80);
+template <typename T>
+void BinarySearchTree<T>::postorderTraversal() {
+    postorder(root);
+}
 
-	// Key to be found
-	int key = 6;
+template <typename T>
+int BinarySearchTree<T>::treeHeight() {
+    return height(root);
+}
 
-	// Searching in a BST
-	if (search(root, key) == NULL)
-		cout << key << " not found" << endl;
-	else
-		cout << key << " found" << endl;
+template <typename T>
+int BinarySearchTree<T>::treeNodeCount() {
+    return nodeCount(root);
+}
 
-	key = 60;
+template <typename T>
+int BinarySearchTree<T>::treeLeavesCount() {
+    return leavesCount(root);
+}
 
-	// Searching in a BST
-	if (search(root, key) == NULL)
-		cout << key << " not found" << endl;
-	else
-		cout << key << " found" << endl;
-	return 0;
+template <typename T>
+void BinarySearchTree<T>::inorder(TreeNode<T>* p) {
+    if (p != nullptr) {
+        inorder(p->left);
+        cout << p->info << " ";
+        inorder(p->right);
+    }
+}
+
+template <typename T>
+void BinarySearchTree<T>::preorder(TreeNode<T>* p) {
+    if (p != nullptr) {
+        cout << p->info << " ";
+        preorder(p->left);
+        preorder(p->right);
+    }
+}
+
+template <typename T>
+void BinarySearchTree<T>::postorder(TreeNode<T>* p) {
+    if (p != nullptr) {
+        postorder(p->left);
+        postorder(p->right);
+        cout << p->info << " ";
+    }
+}
+
+template <typename T>
+int BinarySearchTree<T>::height(TreeNode<T>* p) {
+    if (p == nullptr)
+        return 0;
+    else
+        return 1 + max(height(p->left), height(p->right));
+}
+
+template <typename T>
+int BinarySearchTree<T>::max(int x, int y) {
+    if (x >= y)
+        return x;
+    else
+        return y;
+}
+
+template <typename T>
+int BinarySearchTree<T>::nodeCount(TreeNode<T>* p) {
+    if (p == nullptr)
+        return 0;
+    else
+        return 1 + nodeCount(p->left) + nodeCount(p->right);
+}
+
+template <typename T>
+int BinarySearchTree<T>::leavesCount(TreeNode<T>* p) {
+    if (p == nullptr)
+        return 0;
+    else if (p->left == nullptr && p->right == nullptr)
+        return 1;
+    else
+        return leavesCount(p->left) + leavesCount(p->right);
+}
+
+template <typename T>
+bool BinarySearchTree<T>::search(T item) {
+    TreeNode<T>* current = root;
+
+    while (current != nullptr) {
+        if (current->info == item)
+            return true;
+        else if (current->info > item)
+            current = current->left;
+        else
+            current = current->right;
+    }
+
+    return false;
+}
+
+template <typename T>
+void BinarySearchTree<T>::insert(T item) {
+    TreeNode<T>* current;
+    TreeNode<T>* trailCurrent;
+    TreeNode<T>* newNode;
+
+    newNode = new TreeNode<T>(item);
+    assert(newNode != nullptr);
+    newNode->left = nullptr;
+    newNode->right = nullptr;
+
+    if (root == nullptr)
+        root = newNode;
+    else {
+        current = root;
+
+        while (current != nullptr) {
+            trailCurrent = current;
+
+            if (current->info == item) {
+                cout << "The insert item is already in the list -- ";
+                cout << "duplicates are not allowed." << endl;
+                return;
+            } else if (current->info > item)
+                current = current->left;
+            else
+                current = current->right;
+        }
+
+        if (trailCurrent->info > item)
+            trailCurrent->left = newNode;
+        else
+            trailCurrent->right = newNode;
+    }
+}
+
+template <typename T>
+void BinarySearchTree<T>::remove(T item) {
+    TreeNode<T>* current;
+    TreeNode<T>* trailCurrent;
+
+    if (root == nullptr) {
+        cout << "Cannot delete from the empty tree." << endl;
+        return;
+    }
+    if (root->info == item) {
+        deleteFromTree(root);
+        return;
+    }
+
+    trailCurrent = root;
+
+    if (root->info > item)
+        current = root->left;
+    else
+        current = root->right;
+
+    while (current != nullptr) {
+        if (current->info == item)
+            break;
+        else {
+            trailCurrent = current;
+            if (current->info > item)
+                current = current->left;
+            else
+                current = current->right;
+        }
+    }
+
+    if (current == nullptr)
+        cout << "The delete item is not in the tree." << endl;
+    else if (trailCurrent->info > item)
+        deleteFromTree(trailCurrent->left);
+    else
+        deleteFromTree(trailCurrent->right);
+}
+
+template <typename T>
+void BinarySearchTree<T>::deleteFromTree(TreeNode<T>*& p) {
+    TreeNode<T>* current;
+    TreeNode<T>* trailCurrent;
+    TreeNode<T>* temp;
+
+    if (p->left == nullptr && p->right == nullptr) {
+        delete p;
+        p = nullptr;
+    } else if (p->left == nullptr) {
+        temp = p;
+        p = p->right;
+        delete temp;
+    } else if (p->right == nullptr) {
+        temp = p;
+        p = p->left;
+        delete temp;
+    } else {
+        current = p->left;
+        trailCurrent = nullptr;
+
+        while (current->right != nullptr) {
+            trailCurrent = current;
+            current = current->right;
+        }
+
+        p->info = current->info;
+
+        if (trailCurrent == nullptr)
+            p->left = current->left;
+        else
+            trailCurrent->right = current->left;
+
+        delete current;
+    }
+}
+
+int main() {
+    BinarySearchTree<int> b;
+    b.insert(10);
+    b.insert(20);
+    b.insert(5);
+    b.remove(10);
+    b.inorderTraversal();
+    b.postorderTraversal();
 }
